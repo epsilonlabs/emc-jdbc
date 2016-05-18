@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -22,6 +23,7 @@ import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
+import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.Model;
 import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolMap;
@@ -64,16 +66,16 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	}
 	
 	@Override
-	public void load(StringProperties properties, String basePath)
+	public void load(StringProperties properties, IRelativePathResolver resolver)
 			throws EolModelLoadingException {
-		super.load(properties, basePath);
+		super.load(properties, resolver);
 		this.databaseName = properties.getProperty(PROPERTY_DATABASE);
 		this.server = properties.getProperty(PROPERTY_SERVER, this.server);
 		this.port = properties.getIntegerProperty(PROPERTY_PORT, this.port);
 		this.username = properties.getProperty(PROPERTY_USERNAME);
 		this.password = properties.getProperty(PROPERTY_PASSWORD);
 		this.readOnly = properties.getBooleanProperty(PROPERTY_READONLY, this.readOnly);
-		this.streamResults = properties.getBooleanProperty(PROPERTY_STREAMRESULTS, this.readOnly);
+		this.streamResults = properties.getBooleanProperty(PROPERTY_STREAMRESULTS, this.streamResults);
 		load();
 	}
 
