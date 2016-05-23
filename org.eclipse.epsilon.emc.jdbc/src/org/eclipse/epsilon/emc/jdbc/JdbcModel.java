@@ -238,8 +238,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	
 	@Override
 	public Collection<?> getAllOfType(String type)
-			throws EolModelElementTypeNotFoundException {
-		
+			throws EolModelElementTypeNotFoundException {		
 		return new ResultSetList(this, database.getTable(type), "", null, streamResults, false);
 	}
 	
@@ -281,6 +280,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	}
 	
 	public String ast2sql(Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables) throws EolRuntimeException {
+		
 		if (ast.getType() == EolParser.OPERATOR && ast.getText().equals("not")) {
 			return "not (" + ast2sql(iterator, ast.getFirstChild(), context, variables) + ")";
 		} else if (ast.getType() == EolParser.OPERATOR && ast.getChildren().size() == 2) {
@@ -289,13 +289,13 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 					ast2sql(iterator, ast.getFirstChild().getNextSibling(), context, variables) + ")";
 		}
 		else if (ast.getType() == EolParser.POINT && ast.getFirstChild().getText().equals(iterator.getName())) {
-			return ast.getFirstChild().getNextSibling().getText();
+			return Utils.wrap(ast.getFirstChild().getNextSibling().getText());
 		}
 		else {
 			Object result = context.getExecutorFactory().executeAST(ast, context);
 			variables.add(result);
 			return "?";
-		}
+		}		
 	}
 	
 	@Override

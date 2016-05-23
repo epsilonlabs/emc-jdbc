@@ -102,7 +102,7 @@ public class PrimitiveValuesList extends ResultSetBackedList<Object> implements 
 		return fetched;
 	}
 	
-	public PrimitiveValuesList stream() {
+	public PrimitiveValuesList createStream() {
 		PrimitiveValuesList streamed = new PrimitiveValuesList(model, table, feature, condition, parameters, distinct, true, one);
 		return streamed;		
 	}

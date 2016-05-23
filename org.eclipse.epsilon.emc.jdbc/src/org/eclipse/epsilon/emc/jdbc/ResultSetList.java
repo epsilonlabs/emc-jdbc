@@ -91,7 +91,7 @@ public class ResultSetList extends ResultSetBackedList<Result> implements IAbstr
 		return fetched;
 	}
 	
-	public ResultSetList stream() {
+	public ResultSetList createStream() {
 		ResultSetList streamed = new ResultSetList(model, table, condition, parameters, true, one);
 		return streamed;		
 	}
