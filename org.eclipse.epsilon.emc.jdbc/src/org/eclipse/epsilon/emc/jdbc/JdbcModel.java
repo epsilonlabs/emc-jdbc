@@ -12,6 +12,10 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
+import org.eclipse.epsilon.eol.dom.NameExpression;
+import org.eclipse.epsilon.eol.dom.NotOperatorExpression;
+import org.eclipse.epsilon.eol.dom.OperatorExpression;
+import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.models.EolEnumerationValueNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
@@ -23,6 +27,7 @@ import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
+import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.Model;
 import org.eclipse.epsilon.eol.parse.EolParser;
@@ -281,21 +286,29 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	
 	public String ast2sql(Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables) throws EolRuntimeException {
 		
-		if (ast.getType() == EolParser.OPERATOR && ast.getText().equals("not")) {
+		System.out.println(ast.getClass());
+		
+		//not operations
+		if (ast instanceof NotOperatorExpression) {
 			return "not (" + ast2sql(iterator, ast.getFirstChild(), context, variables) + ")";
-		} else if (ast.getType() == EolParser.OPERATOR && ast.getChildren().size() == 2) {
+		} 
+		//binary operations
+		else if (ast instanceof OperatorExpression && ast.getChildren().size() == 2) {
 			return "(" + ast2sql(iterator, ast.getFirstChild(), context, variables)
 					+ ast.getText() + 
 					ast2sql(iterator, ast.getFirstChild().getNextSibling(), context, variables) + ")";
 		}
-		else if (ast.getType() == EolParser.POINT && ast.getFirstChild().getText().equals(iterator.getName())) {
+		//property calls of current iterator
+		else if (ast instanceof PropertyCallExpression && ((NameExpression) ((PropertyCallExpression) ast).getTargetExpression()).getName().equals(iterator.getName())) {
 			return Utils.wrap(ast.getFirstChild().getNextSibling().getText());
 		}
+		//other
 		else {
 			Object result = context.getExecutorFactory().executeAST(ast, context);
 			variables.add(result);
 			return "?";
 		}		
+		//TODO add other SQL operations useful to CNL
 	}
 	
 	@Override
