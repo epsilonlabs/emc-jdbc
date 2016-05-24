@@ -12,10 +12,7 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
-import org.eclipse.epsilon.eol.dom.NameExpression;
-import org.eclipse.epsilon.eol.dom.NotOperatorExpression;
-import org.eclipse.epsilon.eol.dom.OperatorExpression;
-import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
+import org.eclipse.epsilon.eol.dom.*;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.models.EolEnumerationValueNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
@@ -34,7 +31,7 @@ import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolMap;
 
 public abstract class JdbcModel extends Model implements IOperationContributorProvider {
-	
+
 	public static final String PROPERTY_SERVER = "server";
 	public static final String PROPERTY_PORT = "port";
 	public static final String PROPERTY_DATABASE = "database";
@@ -42,7 +39,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	public static final String PROPERTY_PASSWORD = "password";
 	public static final String PROPERTY_READONLY = "readonly";
 	public static final String PROPERTY_STREAMRESULTS = "streamresults";
-	
+
 	protected String server;
 	protected int port;
 	protected String databaseName;
@@ -55,24 +52,24 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	protected boolean streamResults = true;
 	protected ConnectionPool connectionPool = null;
 	protected StreamedPrimitiveValuesListOperationContributor operationContributor = new StreamedPrimitiveValuesListOperationContributor();
-	
+
 	protected abstract Driver createDriver() throws SQLException;
+
 	protected abstract String getJdbcUrl();
-	
+
 	public void print(ResultSet rs) throws Exception {
 		System.err.println("---");
 		while (rs.next()) {
 			for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
-				System.err.print( rs.getMetaData().getColumnName(i) + "=" + rs.getString(i) + " - ");
+				System.err.print(rs.getMetaData().getColumnName(i) + "=" + rs.getString(i) + " - ");
 			}
 			System.err.println();
 		}
 		System.err.println("---");
 	}
-	
+
 	@Override
-	public void load(StringProperties properties, IRelativePathResolver resolver)
-			throws EolModelLoadingException {
+	public void load(StringProperties properties, IRelativePathResolver resolver) throws EolModelLoadingException {
 		super.load(properties, resolver);
 		this.databaseName = properties.getProperty(PROPERTY_DATABASE);
 		this.server = properties.getProperty(PROPERTY_SERVER, this.server);
@@ -85,96 +82,95 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	}
 
 	/*
-	public ResultSetList query(String sql) throws SQLException {
-		return new ResultSetList(
-				connection.createStatement(),
-				this, null, null, null);
-	}*/
-	
+	 * public ResultSetList query(String sql) throws SQLException { return new
+	 * ResultSetList( connection.createStatement(), this, null, null, null); }
+	 */
+
 	@Override
 	public Object createInstance(String type)
-			throws EolModelElementTypeNotFoundException,
-			EolNotInstantiableModelElementTypeException {
+			throws EolModelElementTypeNotFoundException, EolNotInstantiableModelElementTypeException {
 		return createInstance(type, Collections.emptyList());
 	}
-	
+
 	protected int getResultSetType() {
 		if (!isReadOnly()) {
 			return ResultSet.CONCUR_UPDATABLE;
-		}
-		else {
+		} else {
 			return ResultSet.CONCUR_READ_ONLY;
 		}
 	}
-	
+
 	// Create separate connections for each streamed list
 	protected HashMap<String, PreparedStatement> preparedStatementCache = new HashMap<String, PreparedStatement>();
-	protected PreparedStatement prepareStatement(String sql, int options, int resultSetType, boolean streamed) throws SQLException {
-		
+
+	protected PreparedStatement prepareStatement(String sql, int options, int resultSetType, boolean streamed)
+			throws SQLException {
+
 		PreparedStatement preparedStatement = null;
-		
+
 		if (!streamed) {
 			preparedStatement = preparedStatementCache.get(sql + options + "" + resultSetType);
 			if (preparedStatement == null) {
-				preparedStatement = connectionPool.getConnection(streamed).prepareStatement(sql, options, resultSetType);
+				preparedStatement = connectionPool.getConnection(streamed).prepareStatement(sql, options,
+						resultSetType);
 				preparedStatementCache.put(sql + options + "" + resultSetType, preparedStatement);
 			}
-		}
-		else {
+		} else {
 			preparedStatement = connectionPool.getConnection(streamed).prepareStatement(sql, options, resultSetType);
 		}
-		
+
 		return preparedStatement;
 	}
-	
-	public ResultSet getResultSet(String selection, String condition, List<Object> parameters, Table table, boolean streamed, boolean one) {
-			try {
-				String sql = "select " + selection + " from " + table.getName();
-				if (condition != null && condition.trim().length() > 0) {
-					sql += " where " + condition;
-				}
-				if (one) { sql += " limit 1"; }
-				
-				// System.err.println(sql);
-				
-				int options = ResultSet.TYPE_SCROLL_INSENSITIVE;
-				int resultSetType = this.getResultSetType();
-				
-				if (streamed) {
-					options = ResultSet.TYPE_FORWARD_ONLY;
-					resultSetType = ResultSet.CONCUR_READ_ONLY;
-				}
-				
-				PreparedStatement preparedStatement = this.prepareStatement(sql, options, resultSetType, streamed);
-				
-				if (streamed) {
-					preparedStatement.setFetchSize(Integer.MIN_VALUE);
-				}
-				else {
-					preparedStatement.setFetchSize(Integer.MAX_VALUE);
-				}
-				
-				if (parameters != null) {
-					this.setParameters(preparedStatement, parameters);
-				}
-				
-				ResultSet resultSet = preparedStatement.executeQuery();
-				connectionPool.register(resultSet, preparedStatement.getConnection());
-				return resultSet;
+
+	public ResultSet getResultSet(String selection, String condition, List<Object> parameters, Table table,
+			boolean streamed, boolean one) {
+		try {
+			String sql = "select " + selection + " from " + table.getName();
+			if (condition != null && condition.trim().length() > 0) {
+				sql += " where " + condition;
 			}
-			catch (Exception ex) { throw new RuntimeException(ex); } 
+			if (one) {
+				sql += " limit 1";
+			}
+
+			// System.err.println(sql);
+
+			int options = ResultSet.TYPE_SCROLL_INSENSITIVE;
+			int resultSetType = this.getResultSetType();
+
+			if (streamed) {
+				options = ResultSet.TYPE_FORWARD_ONLY;
+				resultSetType = ResultSet.CONCUR_READ_ONLY;
+			}
+
+			PreparedStatement preparedStatement = this.prepareStatement(sql, options, resultSetType, streamed);
+
+			if (streamed) {
+				preparedStatement.setFetchSize(Integer.MIN_VALUE);
+			} else {
+				preparedStatement.setFetchSize(Integer.MAX_VALUE);
+			}
+
+			if (parameters != null) {
+				this.setParameters(preparedStatement, parameters);
+			}
+
+			ResultSet resultSet = preparedStatement.executeQuery();
+			connectionPool.register(resultSet, preparedStatement.getConnection());
+			return resultSet;
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
-	
+
 	@Override
 	public Object createInstance(String type, Collection<Object> parameters)
-			throws EolModelElementTypeNotFoundException,
-			EolNotInstantiableModelElementTypeException {
+			throws EolModelElementTypeNotFoundException, EolNotInstantiableModelElementTypeException {
 
 		try {
-			
+
 			// Create a Statement for scrollable ResultSet
-			PreparedStatement sta = prepareStatement("SELECT * FROM " + type
-					+ " WHERE 1=2 limit 1",
+			PreparedStatement sta = prepareStatement("SELECT * FROM " + type + " WHERE 1=2 limit 1",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, getResultSetType(), false);
 
 			// Catch the ResultSet object
@@ -194,62 +190,60 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			res.insertRow();
 			res.next();
 			return new Result(res, res.getRow(), this, database.getTable(type), false);
-			
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;
 		}
 
 	}
-	
+
 	@Override
 	public void load() throws EolModelLoadingException {
 		try {
 			connectionPool = new ConnectionPool(createDriver(), getJdbcUrl(), username, password);
-	        database = new Database();
-			
-	        // Cache table names
-	        ResultSet rs = connectionPool.getSharedConnection().getMetaData().getTables(null, null, null, new String[]{});
+			database = new Database();
+
+			// Cache table names
+			ResultSet rs = connectionPool.getSharedConnection().getMetaData().getTables(null, null, null,
+					new String[] {});
 			while (rs.next()) {
 				Table table = new Table(rs.getString(3), database);
 				database.getTables().add(table);
 			}
-			
+
 			/*
-			for (Table table : database.getTables()) {
-				ResultSet foreignKeysRs = connection.getMetaData().getImportedKeys(null, null, table.getName());
-				while (foreignKeysRs.next()) {
-					ForeignKey foreignKey = new ForeignKey();
-					foreignKey.setColumn(foreignKeysRs.getString("FKCOLUMN_NAME"));
-					Table foreignTable = database.getTable(foreignKeysRs.getString("PKTABLE_NAME"));
-					foreignKey.setForeignTable(foreignTable);
-					foreignKey.setForeignColumn("PKCOLUMN_NAME");
-					foreignKey.setName(foreignKeysRs.getString("FK_NAME"));
-					table.getOutgoing().add(foreignKey);
-					foreignTable.getIncoming().add(foreignKey);
-				}
-			}*/
-			
-		}
-		catch (Exception ex) {
+			 * for (Table table : database.getTables()) { ResultSet
+			 * foreignKeysRs = connection.getMetaData().getImportedKeys(null,
+			 * null, table.getName()); while (foreignKeysRs.next()) { ForeignKey
+			 * foreignKey = new ForeignKey();
+			 * foreignKey.setColumn(foreignKeysRs.getString("FKCOLUMN_NAME"));
+			 * Table foreignTable =
+			 * database.getTable(foreignKeysRs.getString("PKTABLE_NAME"));
+			 * foreignKey.setForeignTable(foreignTable);
+			 * foreignKey.setForeignColumn("PKCOLUMN_NAME");
+			 * foreignKey.setName(foreignKeysRs.getString("FK_NAME"));
+			 * table.getOutgoing().add(foreignKey);
+			 * foreignTable.getIncoming().add(foreignKey); } }
+			 */
+
+		} catch (Exception ex) {
 			throw new EolModelLoadingException(ex, this);
 		}
 	}
-	
+
 	@Override
 	public boolean hasType(String type) {
 		return database.getTable(type) != null;
 	}
-	
+
 	@Override
-	public Collection<?> getAllOfType(String type)
-			throws EolModelElementTypeNotFoundException {		
+	public Collection<?> getAllOfType(String type) throws EolModelElementTypeNotFoundException {
 		return new ResultSetList(this, database.getTable(type), "", null, streamResults, false);
 	}
-	
+
 	@Override
-	public Object getEnumerationValue(String enumeration, String label)
-			throws EolEnumerationValueNotFoundException {
+	public Object getEnumerationValue(String enumeration, String label) throws EolEnumerationValueNotFoundException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -259,22 +253,20 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	}
 
 	@Override
-	public boolean isOfType(Object instance, String metaClass)
-			throws EolModelElementTypeNotFoundException {
+	public boolean isOfType(Object instance, String metaClass) throws EolModelElementTypeNotFoundException {
 		return metaClass.equals(getTypeNameOf(instance));
 	}
-	
+
 	@Override
-	public boolean isOfKind(Object instance, String metaClass)
-			throws EolModelElementTypeNotFoundException {
+	public boolean isOfKind(Object instance, String metaClass) throws EolModelElementTypeNotFoundException {
 		return isOfType(instance, metaClass);
 	}
-	
+
 	@Override
 	public String getTypeNameOf(Object instance) {
 		return ((Result) instance).getTable().getName();
 	}
-		
+
 	protected void setParameters(PreparedStatement preparedStatement, List<Object> parameters) throws SQLException {
 		preparedStatement.clearParameters();
 		int i = 1;
@@ -283,34 +275,55 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			i++;
 		}
 	}
-	
-	public String ast2sql(Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables) throws EolRuntimeException {
-		
-		System.out.println(ast.getClass());
-		
-		//not operations
+
+	public String ast2sql(Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables)
+			throws EolRuntimeException {
+
+		// not operations
 		if (ast instanceof NotOperatorExpression) {
 			return "not (" + ast2sql(iterator, ast.getFirstChild(), context, variables) + ")";
-		} 
-		//binary operations
-		else if (ast instanceof OperatorExpression && ast.getChildren().size() == 2) {
-			return "(" + ast2sql(iterator, ast.getFirstChild(), context, variables)
-					+ ast.getText() + 
-					ast2sql(iterator, ast.getFirstChild().getNextSibling(), context, variables) + ")";
 		}
-		//property calls of current iterator
-		else if (ast instanceof PropertyCallExpression && ((NameExpression) ((PropertyCallExpression) ast).getTargetExpression()).getName().equals(iterator.getName())) {
+		// binary operations
+		else if (ast instanceof OperatorExpression && ast.getChildren().size() == 2) {
+			return "(" + ast2sql(iterator, ast.getFirstChild(), context, variables) + ast.getText()
+					+ ast2sql(iterator, ast.getFirstChild().getNextSibling(), context, variables) + ")";
+		}
+		// property/operation calls of current iterator
+		else if (ast instanceof PropertyCallExpression
+				&& ((NameExpression) ((PropertyCallExpression) ast).getTargetExpression()).getName()
+						.equals(iterator.getName())
+				|| ast instanceof OperationCallExpression
+				&& ((OperationCallExpression)ast).getTargetExpression() instanceof FeatureCallExpression
+						&& ((NameExpression) ((FeatureCallExpression) ((OperationCallExpression) ast).getTargetExpression()).getTargetExpression())
+								.getName().equals(iterator.getName())) {
 			return Utils.wrap(ast.getFirstChild().getNextSibling().getText());
 		}
-		//other
+		// other
 		else {
 			Object result = context.getExecutorFactory().executeAST(ast, context);
 			variables.add(result);
 			return "?";
-		}		
-		//TODO add other SQL operations useful to CNL
+		}
+		// TODO add other SQL operations useful to CNL
 	}
-	
+
+//	private String flatten(AST ast, String ret) {
+//		if (ast != null) {
+//			ret += ast + " [" + ast.getClass().getName() + "]";
+//			if (ast.hasChildren()) {
+//				ret += "\n";
+//				AST c1 = ast.getFirstChild();
+//				AST c2 = ast.getSecondChild();
+//				ret += flatten(c1, ret);
+//				ret += " ::: ";
+//				ret += flatten(c2, ret);
+//				ret += "\n";
+//			}
+//		} else
+//			ret += "{empty}";
+//		return ret;
+//	}
+
 	@Override
 	public Object getElementById(String id) {
 		throw new UnsupportedOperationException();
@@ -320,70 +333,52 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	public String getElementId(Object instance) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public IPropertyGetter getPropertyGetter() {
 		return propertyGetter;
 	}
-	
+
 	@Override
 	public IPropertySetter getPropertySetter() {
 		return propertySetter;
 	}
-	
+
 	@Override
-	public Collection<?> getAllOfKind(String type)
-			throws EolModelElementTypeNotFoundException {
+	public Collection<?> getAllOfKind(String type) throws EolModelElementTypeNotFoundException {
 		return getAllOfType(type);
 	}
-	
+
 	@Override
 	public boolean owns(Object instance) {
-		return (instance instanceof Result && 
-			((Result) instance).getOwningModel() == this)/*
-			|| ((instance instanceof ResultSetList) && 
-			((ResultSetList) instance).getModel() == this)*/;
+		return (instance instanceof Result && ((Result) instance)
+				.getOwningModel() == this)/*
+											 * || ((instance instanceof
+											 * ResultSetList) &&
+											 * ((ResultSetList)
+											 * instance).getModel() == this)
+											 */;
 	}
-	
+
 	/*
-	@Override
-	public IModelTransactionSupport getTransactionSupport() {
-		return new IModelTransactionSupport() {
-			
-			@Override
-			public void startTransaction() {
-				try {
-					connection.setAutoCommit(false);
-				} catch (SQLException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-			
-			@Override
-			public void commitTransaction() {
-				try {
-					connection.commit();
-					connection.setAutoCommit(true);
-				}
-				catch (SQLException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-			
-			@Override
-			public void rollbackTransaction() {
-				try {
-					connection.rollback();
-					connection.setAutoCommit(true);
-				}
-				catch (SQLException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-			
-		};
-	}*/
-	
+	 * @Override public IModelTransactionSupport getTransactionSupport() {
+	 * return new IModelTransactionSupport() {
+	 * 
+	 * @Override public void startTransaction() { try {
+	 * connection.setAutoCommit(false); } catch (SQLException ex) { throw new
+	 * RuntimeException(ex); } }
+	 * 
+	 * @Override public void commitTransaction() { try { connection.commit();
+	 * connection.setAutoCommit(true); } catch (SQLException ex) { throw new
+	 * RuntimeException(ex); } }
+	 * 
+	 * @Override public void rollbackTransaction() { try {
+	 * connection.rollback(); connection.setAutoCommit(true); } catch
+	 * (SQLException ex) { throw new RuntimeException(ex); } }
+	 * 
+	 * }; }
+	 */
+
 	public String getServer() {
 		return server;
 	}
@@ -423,15 +418,15 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 	}
-	
+
 	public boolean isReadOnly() {
 		return readOnly;
 	}
-	
+
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -441,47 +436,47 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public void setElementId(Object instance, String newId) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public void deleteElement(Object instance) throws EolRuntimeException {
-		
+
 	}
-	
+
 	@Override
 	public boolean isInstantiable(String type) {
 		return !readOnly;
 	}
-	
+
 	@Override
 	public boolean store(String location) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	public boolean store() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public boolean isStreamResults() {
 		return streamResults;
 	}
-	
+
 	public void setStreamResults(boolean streamResults) {
 		this.streamResults = streamResults;
 	}
-	
+
 	@Override
 	public OperationContributor getOperationContributor() {
 		return operationContributor;
 	}
-	
+
 	public ConnectionPool getConnectionPool() {
 		return connectionPool;
 	}
-	
+
 }

@@ -12,9 +12,11 @@ package org.eclipse.epsilon.emc.jdbc;
 
 public class Utils {
 
-	//wrap all features in quotes to ensure escaping of special characters like spaces 
-	public static String wrap(String s){
-		return "\""+s+"\"";
+	// wrap all feature names in quotes to ensure escaping of special characters
+	// like spaces (permitted by some technologies, which would result in
+	// incorrect SQL)
+	public static String wrap(String s) {
+		return "\"" + s + "\"";
 	}
-	
+
 }
