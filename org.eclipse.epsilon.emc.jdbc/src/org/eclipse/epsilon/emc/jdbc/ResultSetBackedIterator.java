@@ -18,7 +18,8 @@ public abstract class ResultSetBackedIterator<T> extends ImmutableListIterator<T
 	@Override
 	public boolean hasNext() {
 		try {
-			return !rs.isLast();
+			return //!rs.isClosed() && 
+					!rs.isLast();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}

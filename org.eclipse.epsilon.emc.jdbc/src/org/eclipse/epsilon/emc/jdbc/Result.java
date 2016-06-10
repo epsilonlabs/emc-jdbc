@@ -96,4 +96,8 @@ public class Result implements IModelElement {
 	public boolean equals(Object arg0) {
 		return super.equals(arg0);
 	}
+	
+	public String toString(){
+		return getClass()+"#"+hashCode()+" : "+table.getName()+" : "+ row + " : "+cache;		
+	}
 }

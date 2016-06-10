@@ -16,7 +16,7 @@ public class ResultSetListCollectOperation extends CollectOperation {
 		
 		ResultSetList resultSetList = (ResultSetList) target;
 		return new PrimitiveValuesList(resultSetList.getModel(), resultSetList.getTable(), 
-				resultSetList.getModel().ast2sql(iterator, expressionAst, context, new ArrayList<Object>()), 
+				resultSetList.getModel().ast2sql(resultSetList.getTable(),iterator, expressionAst, context, new ArrayList<Object>()), 
 				resultSetList.getCondition(), resultSetList.getParameters(), false, resultSetList.isStreamed(),
 				resultSetList.isOne());
 

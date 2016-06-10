@@ -15,8 +15,8 @@ public class Utils {
 	// wrap all feature names in quotes to ensure escaping of special characters
 	// like spaces (permitted by some technologies, which would result in
 	// incorrect SQL)
-	public static String wrap(String s) {
-		return "\"" + s + "\"";
+	public static String wrap(String s, String identifierQuoteString) {
+		return identifierQuoteString + s + identifierQuoteString;
 	}
 
 }

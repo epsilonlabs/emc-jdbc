@@ -16,7 +16,7 @@ public class ResultSetListSelectOperation extends SelectOperation {
 		ResultSetList list = (ResultSetList) target;
 		
 		ArrayList<Object> selectParameters = new ArrayList<Object>();
-		String selectCondition = list.getModel().ast2sql(iterator, expressionAst, context, selectParameters);
+		String selectCondition = list.getModel().ast2sql(list.getTable(),iterator, expressionAst, context, selectParameters);
 		
 		if (list.getCondition() != null && list.getCondition().trim().length() > 0) {
 			selectParameters.addAll(list.getParameters());

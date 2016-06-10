@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.emc.jdbc;
 
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +13,15 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
-import org.eclipse.epsilon.eol.dom.*;
+import org.eclipse.epsilon.eol.dom.CollectionLiteralExpression;
+import org.eclipse.epsilon.eol.dom.Expression;
+import org.eclipse.epsilon.eol.dom.FeatureCallExpression;
+import org.eclipse.epsilon.eol.dom.NameExpression;
+import org.eclipse.epsilon.eol.dom.NotOperatorExpression;
+import org.eclipse.epsilon.eol.dom.OperationCallExpression;
+import org.eclipse.epsilon.eol.dom.OperatorExpression;
+import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
+import org.eclipse.epsilon.eol.dom.StringLiteral;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.models.EolEnumerationValueNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
@@ -24,10 +33,8 @@ import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
-import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.Model;
-import org.eclipse.epsilon.eol.parse.EolParser;
 import org.eclipse.epsilon.eol.types.EolMap;
 
 public abstract class JdbcModel extends Model implements IOperationContributorProvider {
@@ -56,6 +63,8 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	protected abstract Driver createDriver() throws SQLException;
 
 	protected abstract String getJdbcUrl();
+
+	protected String identifierQuoteString = "unknown";
 
 	public void print(ResultSet rs) throws Exception {
 		System.err.println("---");
@@ -143,6 +152,8 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 				resultSetType = ResultSet.CONCUR_READ_ONLY;
 			}
 
+			System.out.println(sql);
+			System.out.println(parameters);
 			PreparedStatement preparedStatement = this.prepareStatement(sql, options, resultSetType, streamed);
 
 			if (streamed) {
@@ -204,9 +215,12 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			connectionPool = new ConnectionPool(createDriver(), getJdbcUrl(), username, password);
 			database = new Database();
 
+			DatabaseMetaData md = connectionPool.getSharedConnection().getMetaData();
+
+			identifierQuoteString = md.getIdentifierQuoteString();
+
 			// Cache table names
-			ResultSet rs = connectionPool.getSharedConnection().getMetaData().getTables(null, null, null,
-					new String[] {});
+			ResultSet rs = md.getTables(null, null, null, new String[] {});
 			while (rs.next()) {
 				Table table = new Table(rs.getString(3), database);
 				database.getTables().add(table);
@@ -234,17 +248,29 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 
 	@Override
 	public boolean hasType(String type) {
-		return database.getTable(type) != null;
+		return database.getTable(type) != null
+				|| database.getTable(identifierQuoteString + type + identifierQuoteString) != null;
 	}
 
 	@Override
 	public Collection<?> getAllOfType(String type) throws EolModelElementTypeNotFoundException {
-		return new ResultSetList(this, database.getTable(type), "", null, streamResults, false);
+		Collection<?> ret = null;
+		try {
+			ret = new ResultSetList(this, database.getTable(type), "", null, streamResults, false);
+		} catch (Exception e) {
+			// suppress non-wrapped table names exception
+		}
+		type = type.replace("'", identifierQuoteString);
+		ret = new ResultSetList(this, database.getTable(identifierQuoteString + type + identifierQuoteString), "", null,
+				streamResults, false);
+		return ret;
 	}
 
 	@Override
 	public Object getEnumerationValue(String enumeration, String label) throws EolEnumerationValueNotFoundException {
-		throw new UnsupportedOperationException();
+		// FIXME handle enums
+		return enumeration + "#" + label;
+		// throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -276,53 +302,211 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		}
 	}
 
-	public String ast2sql(Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables)
+	public String ast2sql(Table t, Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables)
 			throws EolRuntimeException {
 
 		// not operations
 		if (ast instanceof NotOperatorExpression) {
-			return "not (" + ast2sql(iterator, ast.getFirstChild(), context, variables) + ")";
+			final NotOperatorExpression nexp = (NotOperatorExpression) ast;
+			return "not (" + ast2sql(t, iterator, nexp.getFirstOperand(), context, variables) + ")";
 		}
 		// binary operations
-		else if (ast instanceof OperatorExpression && ast.getChildren().size() == 2) {
-			return "(" + ast2sql(iterator, ast.getFirstChild(), context, variables) + ast.getText()
-					+ ast2sql(iterator, ast.getFirstChild().getNextSibling(), context, variables) + ")";
+		else if (ast instanceof OperatorExpression && ((OperatorExpression) ast).getFirstOperand() != null
+				&& ((OperatorExpression) ast).getSecondChild() != null) {
+
+			String originalOperation = ast.getText();
+			String operation = originalOperation;
+
+			final OperatorExpression oexp = (OperatorExpression) ast;
+
+			// special cases of eol2sql incompatible terminologies or
+			// CNL-defined functions
+			if (originalOperation.equals("=="))
+				// == needs to be =
+				operation = "=";
+			if (originalOperation.equals("implies")) {
+				// implies needs to be normalised (not a or b)
+				return "((not " + ast2sql(t, iterator, oexp.getFirstOperand(), context, variables) + ") or "
+						+ ast2sql(t, iterator, oexp.getSecondOperand(), context, variables) + ")";
+
+				//
+			} else
+				return "(" + ast2sql(t, iterator, oexp.getFirstOperand(), context, variables) + operation
+						+ ast2sql(t, iterator, oexp.getSecondOperand(), context, variables) + ")";
+
 		}
 		// property/operation calls of current iterator
 		else if (ast instanceof PropertyCallExpression
 				&& ((NameExpression) ((PropertyCallExpression) ast).getTargetExpression()).getName()
-						.equals(iterator.getName())
-				|| ast instanceof OperationCallExpression
-				&& ((OperationCallExpression)ast).getTargetExpression() instanceof FeatureCallExpression
-						&& ((NameExpression) ((FeatureCallExpression) ((OperationCallExpression) ast).getTargetExpression()).getTargetExpression())
-								.getName().equals(iterator.getName())) {
-			return Utils.wrap(ast.getFirstChild().getNextSibling().getText());
-		}
+						.equals(iterator.getName())) {
+			PropertyCallExpression pexp = (PropertyCallExpression) ast;
+			return Utils.wrap(pexp.getPropertyNameExpression().getText(), identifierQuoteString);
+		} else if (ast instanceof OperationCallExpression
+				// operation
+				&& ((OperationCallExpression) ast).getTargetExpression() instanceof FeatureCallExpression
+				// to a feature
+				&& ((FeatureCallExpression) ((OperationCallExpression) ast).getTargetExpression())
+						.getTargetExpression() instanceof NameExpression
+						// with name
+				&& ((NameExpression) ((FeatureCallExpression) ((OperationCallExpression) ast).getTargetExpression())
+						.getTargetExpression()).getName().equals(iterator.getName())
+		// equal to iterator
+		) {
+			OperationCallExpression ocexp = (OperationCallExpression) ast;
+			String operationname = Utils.wrap(ocexp.getOperationName(), identifierQuoteString);
+			// currently the hasType function supported fully
+			if (operationname.equals(identifierQuoteString + "hasType" + identifierQuoteString))
+				try {
+					String datatype = getTypeMetaData(t, ((PropertyCallExpression) ocexp.getTargetExpression())
+							.getPropertyNameExpression().getName());
+					// System.err.println(">"+datatype);
+					String requiredtype = ((StringLiteral) ocexp.getParameterExpressions().get(0)).getValue();
+					// System.err.println(">>"+requiredtype);
+					boolean match = datatype.equals(requiredtype)
+							|| datatype.equals("String") && stringToEnum(datatype);
+					String ret = "" + match;
+					// System.err.println(ret);
+					return ret;
+				} catch (SQLException e) {
+					throw new EolRuntimeException("SQLException in ast2sql(...): " + e.getLocalizedMessage());
+				}
+			else {
+				System.err.println("warning unsupported function found: " + operationname);
+				return operationname;
+			}
+		} else if (isOperationIsPropertySet(ast, iterator)) {
+			// operation call of current iterator, using it as a parameter --
+			// currently supporting isPropertySet
+			OperationCallExpression currentoperation = (OperationCallExpression) ast;
+
+			List<Expression> parameters = currentoperation.getParameterExpressions();
+			if (parameters.size() == 2 && parameters.get(0).getText().equals(iterator.getName()))
+				return "(" + Utils.wrap(((StringLiteral) parameters.get(1)).getText(), identifierQuoteString)
+						+ " is not null)";
+			else
+				throw new UnsupportedOperationException("cannot translate calls to operation: "
+						+ currentoperation.getOperationName() + " with parameters: " + parameters);
+		} else if (isOperationIncludes(ast, iterator)) {
+			// currently supporting includes with a feature of iterator as
+			// parameter
+			OperationCallExpression currentoperation = (OperationCallExpression) ast;
+			List<Expression> parameters = currentoperation.getParameterExpressions();
+			System.err.println(parameters);
+			String ret = "(";
+			for (String s : ((Collection<String>) currentoperation.getTargetExpression().execute(context))) {
+				ret = ret + Utils.wrap(
+						((NameExpression) ((PropertyCallExpression) parameters.get(0)).getPropertyNameExpression())
+								.getName(),
+						identifierQuoteString) + "=? or ";
+				variables.add(s);
+			}
+			ret = ret.substring(0, ret.length() - 4);
+			ret += ")";
+			return ret;
+		} else
 		// other
-		else {
+		{
 			Object result = context.getExecutorFactory().executeAST(ast, context);
 			variables.add(result);
 			return "?";
 		}
+
 		// TODO add other SQL operations useful to CNL
 	}
 
-//	private String flatten(AST ast, String ret) {
-//		if (ast != null) {
-//			ret += ast + " [" + ast.getClass().getName() + "]";
-//			if (ast.hasChildren()) {
-//				ret += "\n";
-//				AST c1 = ast.getFirstChild();
-//				AST c2 = ast.getSecondChild();
-//				ret += flatten(c1, ret);
-//				ret += " ::: ";
-//				ret += flatten(c2, ret);
-//				ret += "\n";
-//			}
-//		} else
-//			ret += "{empty}";
-//		return ret;
-//	}
+	// private String flatten(AST ast, String ret) {
+	// if (ast != null) {
+	// ret += ast + " [" + ast.getClass().getName() + "]";
+	// if (ast.hasChildren()) {
+	// ret += "\n";
+	// AST c1 = ast.getFirstChild();
+	// AST c2 = ast.getSecondChild();
+	// ret += flatten(c1, ret);
+	// ret += " ::: ";
+	// ret += flatten(c2, ret);
+	// ret += "\n";
+	// }
+	// } else
+	// ret += "{empty}";
+	// return ret;
+	// }
+
+	private boolean isOperationIncludes(AST ast, Variable iterator) {
+		boolean ret = ast instanceof OperationCallExpression;
+		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof CollectionLiteralExpression;
+		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("includes");
+		// the operation is specifically 'isPropertySet'
+		ret = ret && ((NameExpression) ((PropertyCallExpression) ((OperationCallExpression) ast)
+				.getParameterExpressions().get(0)).getTargetExpression()).getName().equals(iterator.getName());
+		return ret;
+	}
+
+	private boolean stringToEnum(String datatype) {
+		// TODO FIXME enums
+		return true;
+	}
+
+	private String getTypeMetaData(Table table, String column) throws SQLException {
+
+		DatabaseMetaData dmd = connectionPool.getSharedConnection().getMetaData();
+
+		ResultSet rs = dmd.getColumns(null, null, table.getName(), column);
+
+		String type = "unknown";
+
+		if (rs.next())
+			type = rs.getString(6);
+
+		return asPrimitive(type);
+	}
+
+	// returns the name of the Java primitive 'self' represents, if any --
+	// similar to operation Any asPrimitive() in utils.eol
+	private String asPrimitive(String self) {
+		String id = "unknown";
+		if (self != null)
+			id = self;
+		if (id.contains("CHAR"))
+			return "String";
+		if (id.equals("BOOLEAN"))
+			return "Boolean";
+		if (id.equals("INTEGER"))
+			return "Integer";
+		if (id.equals("DECIMAL") || id.equals("DOUBLE") || id.equals("FLOAT"))
+			return "Decimal";
+		if (id.equals("DATE"))
+			return "Date";
+		if (id.equals("org.eclipse.emf.ecore.impl.EEnumLiteralImpl"))
+			// FIXME enums?
+			return self;
+		// FIXME non-emf enums
+		if (id.equals("java.util.Enumeration"))
+			return self;
+		return "unknown";
+	}
+
+	private boolean isOperationAvg(AST ast) {
+		boolean ret = ast instanceof OperationCallExpression;
+		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof NameExpression;
+		ret = ret
+				&& ((NameExpression) ((OperationCallExpression) ast).getTargetExpression()).getName().equals(getName());
+		// the current sub-expression is made up of: `Model`.x
+		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("avg");
+		return ret;
+	}
+
+	private boolean isOperationIsPropertySet(AST ast, Variable iterator) {
+		boolean ret = ast instanceof OperationCallExpression;
+		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof NameExpression;
+		ret = ret
+				&& ((NameExpression) ((OperationCallExpression) ast).getTargetExpression()).getName().equals(getName());
+		// the current sub-expression is made up of: `Model`.x
+		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("isPropertySet");
+		// the operation is specifically 'isPropertySet'
+		ret = ret && ((NameExpression) ((OperationCallExpression) ast).getParameterExpressions().get(0)).getName()
+				.equals(iterator.getName());
+		return ret;
+	}
 
 	@Override
 	public Object getElementById(String id) {

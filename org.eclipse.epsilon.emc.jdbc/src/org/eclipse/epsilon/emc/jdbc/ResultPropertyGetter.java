@@ -19,7 +19,9 @@ public class ResultPropertyGetter extends AbstractPropertyGetter {
 			throws EolRuntimeException {
 		
 		try {
-			return ((Result) object).getValue(property);
+			Object ret = ((Result) object).getValue(property);
+			//System.out.println(ret);
+			return ret;
 		} catch (SQLException e) {
 			throw new EolInternalException(e);
 		}
