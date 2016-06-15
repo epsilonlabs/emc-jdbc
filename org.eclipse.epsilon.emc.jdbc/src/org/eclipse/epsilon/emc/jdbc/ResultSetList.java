@@ -26,7 +26,23 @@ public class ResultSetList extends ResultSetBackedList<Result> implements IAbstr
 	
 	@Override
 	public boolean contains(Object o) {
-		return (o instanceof Result && ((Result) o).getResultSet() == getResultSet());
+		if (o instanceof Result) {
+			final Result otherResult = (Result) o;
+
+			// simple case - the element is from this list
+			final boolean sameResultSet = otherResult.getResultSet() == getResultSet();
+			if (sameResultSet) {
+				return true;
+			}
+
+			// complex case - we have to find an identical row in the result list
+			for (Result result : this) {
+				if (result.equals(otherResult)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
