@@ -29,6 +29,13 @@ public abstract class StreamedResultSetBackedIterator<T> extends ResultSetBacked
 				nextConsumed = false;
 			}
 			else {
+				// When we've consumed all the items, make sure the result set is closed
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					System.err.println("Error closing used up result set");
+					e.printStackTrace();
+				}
 				model.getConnectionPool().finishedStreaming(rs);
 			}
 		}
