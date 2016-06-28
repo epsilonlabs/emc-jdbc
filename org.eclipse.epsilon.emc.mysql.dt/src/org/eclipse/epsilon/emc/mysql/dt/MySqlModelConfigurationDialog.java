@@ -51,7 +51,15 @@ public class MySqlModelConfigurationDialog extends AbstractModelConfigurationDia
 		usernameText = createLabeledText(groupContent, "Username");
 		passwordText = createLabeledText(groupContent, "Password", SWT.BORDER | SWT.PASSWORD);
 		readonlyButton = createLabeledButton(groupContent, "Read-only", SWT.CHECK);
+		//only allow read-only connections for now
+		readonlyButton.setEnabled(false);
+		readonlyButton.setSelection(true);
 		streamedResultsButton = createLabeledButton(groupContent, "Stream results", SWT.CHECK);
+		//only allow streamed connections for now
+		streamedResultsButton.setEnabled(false);
+		streamedResultsButton.setSelection(true);
+		
+		
 		
 		groupContent.layout();
 		groupContent.pack();

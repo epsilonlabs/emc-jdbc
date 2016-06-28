@@ -28,6 +28,7 @@ public class PrimitiveValuesList extends ResultSetBackedList<Object> implements 
 	
 	@Override
 	public String getSelection() {
+		//* missing?
 		String selection = " " + feature + " ";
 		if (distinct) { selection = " distinct" + selection; }
 		return selection;

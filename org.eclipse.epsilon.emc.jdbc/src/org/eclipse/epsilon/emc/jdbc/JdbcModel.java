@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.epsilon.common.parse.AST;
+//import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.eol.dom.CollectionLiteralExpression;
 import org.eclipse.epsilon.eol.dom.Expression;
@@ -33,6 +33,7 @@ import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
+import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.Model;
 import org.eclipse.epsilon.eol.types.EolMap;
@@ -302,7 +303,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		}
 	}
 
-	public String ast2sql(Table t, Variable iterator, AST ast, IEolContext context, ArrayList<Object> variables)
+	public String ast2sql(Table t, Variable iterator, Expression ast, IEolContext context, ArrayList<Object> variables)
 			throws EolRuntimeException {
 
 		// not operations
@@ -312,12 +313,12 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		}
 		// binary operations
 		else if (ast instanceof OperatorExpression && ((OperatorExpression) ast).getFirstOperand() != null
-				&& ((OperatorExpression) ast).getSecondChild() != null) {
-
-			String originalOperation = ast.getText();
-			String operation = originalOperation;
+				&& ((OperatorExpression) ast).getSecondOperand() != null) {
 
 			final OperatorExpression oexp = (OperatorExpression) ast;
+			
+			String originalOperation = oexp.getOperator();
+			String operation = originalOperation;
 
 			// special cases of eol2sql incompatible terminologies or
 			// CNL-defined functions
@@ -340,7 +341,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 				&& ((NameExpression) ((PropertyCallExpression) ast).getTargetExpression()).getName()
 						.equals(iterator.getName())) {
 			PropertyCallExpression pexp = (PropertyCallExpression) ast;
-			return Utils.wrap(pexp.getPropertyNameExpression().getText(), identifierQuoteString);
+			return Utils.wrap(pexp.getPropertyNameExpression().getName(), identifierQuoteString);
 		} else if (ast instanceof OperationCallExpression
 				// operation
 				&& ((OperationCallExpression) ast).getTargetExpression() instanceof FeatureCallExpression
@@ -380,8 +381,8 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			OperationCallExpression currentoperation = (OperationCallExpression) ast;
 
 			List<Expression> parameters = currentoperation.getParameterExpressions();
-			if (parameters.size() == 2 && parameters.get(0).getText().equals(iterator.getName()))
-				return "(" + Utils.wrap(((StringLiteral) parameters.get(1)).getText(), identifierQuoteString)
+			if (parameters.size() == 2 && ((NameExpression) parameters.get(0)).getName().equals(iterator.getName()))
+				return "(" + Utils.wrap(((StringLiteral) parameters.get(1)).getValue(), identifierQuoteString)
 						+ " is not null)";
 			else
 				throw new UnsupportedOperationException("cannot translate calls to operation: "
@@ -431,7 +432,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	// return ret;
 	// }
 
-	private boolean isOperationIncludes(AST ast, Variable iterator) {
+	private boolean isOperationIncludes(Expression ast, Variable iterator) {
 		boolean ret = ast instanceof OperationCallExpression;
 		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof CollectionLiteralExpression;
 		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("includes");
@@ -485,7 +486,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		return "unknown";
 	}
 
-	private boolean isOperationAvg(AST ast) {
+	private boolean isOperationAvg(Expression ast) {
 		boolean ret = ast instanceof OperationCallExpression;
 		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof NameExpression;
 		ret = ret
@@ -495,7 +496,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		return ret;
 	}
 
-	private boolean isOperationIsPropertySet(AST ast, Variable iterator) {
+	private boolean isOperationIsPropertySet(Expression ast, Variable iterator) {
 		boolean ret = ast instanceof OperationCallExpression;
 		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof NameExpression;
 		ret = ret

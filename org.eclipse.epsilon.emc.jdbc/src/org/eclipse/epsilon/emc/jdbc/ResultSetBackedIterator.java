@@ -4,22 +4,36 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class ResultSetBackedIterator<T> extends ImmutableListIterator<T> {
-	
+
 	protected ResultSet rs = null;
 	protected JdbcModel model = null;
 	protected Table table = null;
-	
+
 	public ResultSetBackedIterator(ResultSet rs, JdbcModel model, Table table) {
 		this.rs = rs;
 		this.model = model;
 		this.table = table;
 	}
-	
+
 	@Override
 	public boolean hasNext() {
+		boolean isLast = false;
 		try {
-			return //!rs.isClosed() && 
-					!rs.isLast();
+			isLast = // !rs.isClosed() &&
+			rs.isLast();
+
+			// When we've consumed all the items, make sure the result set is
+			// closed
+			if (isLast)
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					System.err.println("Error closing used up result set");
+					e.printStackTrace();
+				}
+			//
+
+			return isLast;
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -34,9 +48,9 @@ public abstract class ResultSetBackedIterator<T> extends ImmutableListIterator<T
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	protected abstract T getValueAtCurrentIndex();
-	
+
 	@Override
 	public boolean hasPrevious() {
 		try {
@@ -54,7 +68,7 @@ public abstract class ResultSetBackedIterator<T> extends ImmutableListIterator<T
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public T previous() {
 		try {
