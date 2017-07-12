@@ -91,37 +91,6 @@ public class Result implements IModelElement {
 	public Table getTable() {
 		return table;
 	}
-	
-	@Override
-	public boolean equals(Object arg0) {
-		try {
-			if (arg0 instanceof Result) {
-				final Result otherResult = (Result) arg0;
-
-				final int nColumns = getColumnCount();
-				if (nColumns != otherResult.getColumnCount()) {
-					return false;
-				}
-				for (int iColumn = 1; iColumn <= nColumns; iColumn++) {
-					final String cName = resultSet.getMetaData().getColumnName(iColumn);
-					final Object myValue = getValue(cName);
-					final Object otherValue = otherResult.getValue(cName);
-					if (myValue == null && otherValue != null) {
-						return false;
-					} else if (!myValue.equals(otherValue)) {
-						return false;
-					}
-				}
-
-				return true;
-			}
-		} catch (Exception ex) {
-			System.err.println("Exception in Result#equals");
-			ex.printStackTrace();
-		}
-		return false;
-		// return super.equals(arg0);
-	}
 
 	private int getColumnCount() throws SQLException {
 		return resultSet.getMetaData().getColumnCount();
