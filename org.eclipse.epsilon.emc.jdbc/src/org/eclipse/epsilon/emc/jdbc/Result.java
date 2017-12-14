@@ -41,8 +41,10 @@ public class Result implements IModelElement {
 		
 		try {
 			ResultSetMetaData metadata = resultSet.getMetaData();
-			for (int i = 1; i<= metadata.getColumnCount(); i++) {
-				cache.put(metadata.getColumnName(i).toLowerCase(), resultSet.getObject(i));
+			if(resultSet.next()) {
+				for (int i = 1; i<= metadata.getColumnCount(); i++) {
+					cache.put(metadata.getColumnName(i).toLowerCase(), resultSet.getObject(i));
+				}
 			}
 		}
 		catch (Exception ex) { throw new RuntimeException(ex); }

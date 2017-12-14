@@ -1,5 +1,11 @@
 package org.eclipse.epsilon.emc.jdbc;
 
+/**
+ * A representation of a ForeignKey in a DB
+ * 
+ * @author Dimitris Kolovos
+ *
+ */
 public class ForeignKey {
 	
 	protected String name;

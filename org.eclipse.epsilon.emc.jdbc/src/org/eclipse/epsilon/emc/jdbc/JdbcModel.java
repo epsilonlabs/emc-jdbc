@@ -33,11 +33,15 @@ import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
-import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.Model;
 import org.eclipse.epsilon.eol.types.EolMap;
 
+/**
+ * An Epsilon EMC model that uses the JDBC api to provide access to a DB as a model. 
+ * @author Dimitris Kolovos
+ *
+ */
 public abstract class JdbcModel extends Model implements IOperationContributorProvider {
 
 	public static final String PROPERTY_SERVER = "server";
@@ -57,8 +61,12 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	protected ResultPropertyGetter propertyGetter = new ResultPropertyGetter(this);
 	protected ResultPropertySetter propertySetter = new ResultPropertySetter(this);
 	protected boolean readOnly = true;
+	
+	/** Wheater this model uses streamed ResultSets */
 	protected boolean streamResults = true;
+	
 	protected ConnectionPool connectionPool = null;
+	
 	protected StreamedPrimitiveValuesListOperationContributor operationContributor = new StreamedPrimitiveValuesListOperationContributor();
 
 	protected abstract Driver createDriver() throws SQLException;
@@ -67,7 +75,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 
 	protected String identifierQuoteString = "unknown";
 
-	public void print(ResultSet rs) throws Exception {
+	public static void print(ResultSet rs) throws Exception {
 		System.err.println("---");
 		while (rs.next()) {
 			for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
@@ -91,10 +99,6 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		load();
 	}
 
-	/*
-	 * public ResultSetList query(String sql) throws SQLException { return new
-	 * ResultSetList( connection.createStatement(), this, null, null, null); }
-	 */
 
 	@Override
 	public Object createInstance(String type)
@@ -168,11 +172,27 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			}
 
 			ResultSet resultSet = preparedStatement.executeQuery();
-			connectionPool.register(resultSet, preparedStatement.getConnection());
+			if (streamed) {
+				connectionPool.register(resultSet, preparedStatement.getConnection());
+			}
 			return resultSet;
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+	
+	public void finishedStreaming(ResultSet resultSet, boolean streamed) {
+		if (streamed) {
+			try {
+				resultSet.close();
+				connectionPool.finishedStreaming(resultSet);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
 	}
 
 	@Override
@@ -224,9 +244,9 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			ResultSet rs = md.getTables(null, null, null, new String[] {});
 			while (rs.next()) {
 				Table table = new Table(rs.getString(3), database);
-				database.getTables().add(table);
+				database.addTable(table);
 			}
-
+			// FIXME Do we need FKs?
 			/*
 			 * for (Table table : database.getTables()) { ResultSet
 			 * foreignKeysRs = connection.getMetaData().getImportedKeys(null,

@@ -65,8 +65,6 @@ public class PrimitiveValuesList extends ResultSetBackedList<Object> implements 
 		return getValues().indexOf(o);
 	}
 
-
-
 	@Override
 	public Iterator<Object> iterator() {
 		return listIterator();

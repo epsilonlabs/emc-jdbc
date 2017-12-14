@@ -2,6 +2,13 @@ package org.eclipse.epsilon.emc.jdbc;
 
 import java.util.ListIterator;
 
+/**
+ * A base ListIterator<T> implementation that is immutable.
+ * 
+ * @author Dimitris Kolovos
+ *
+ * @param <T>
+ */
 public abstract class ImmutableListIterator<T> implements ListIterator<T>{
 
 	@Override

@@ -5,6 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * A base List<T> implementation that is immutable.
+ * 
+ * @author Dimitris Kolovos
+ *
+ * @param <T>
+ */
 public abstract class ImmutableList<T> implements List<T>{
 
 	@Override

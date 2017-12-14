@@ -5,6 +5,7 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundExce
 import org.eclipse.epsilon.eol.exceptions.models.EolNotInstantiableModelElementTypeException;
 import org.eclipse.epsilon.eol.models.Model;
 
+@Deprecated
 public abstract class ImmutableModel extends Model {
 
 	@Override
