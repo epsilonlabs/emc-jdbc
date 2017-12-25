@@ -358,20 +358,20 @@ Public License instead of this License.
    </license>
 
    <plugin
-         id="org.eclipse.epsilon.emc.mysql"
+         id="org.eclipse.epsilon.emc.jdbc.mysql.dependencies"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.epsilon.emc.jdbc.mysql.dt"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.epsilon.emc.mysql.dependencies"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.eclipse.epsilon.emc.mysql.dt"
+         id="org.eclipse.epsilon.emc.jdbc.mysql"
          download-size="0"
          install-size="0"
          version="0.0.0"
