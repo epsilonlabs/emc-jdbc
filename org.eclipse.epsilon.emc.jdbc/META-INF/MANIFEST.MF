@@ -1,13 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Jdbc
+Bundle-Name: Epsilon EMC JDBC Driver
 Bundle-SymbolicName: org.eclipse.epsilon.emc.jdbc
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: org.eclipse.epsilon.emc.jdbc.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.epsilon.eol.engine;visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.epsilon.emc.jdbc
-
+Bundle-Vendor: Epsilon Framework

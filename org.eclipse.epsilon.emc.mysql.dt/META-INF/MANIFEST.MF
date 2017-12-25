@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: EMC MySQL development tools
+Bundle-Name: Epsilon EMC JDBC MySql Driver Developer Tools
 Bundle-SymbolicName: org.eclipse.epsilon.emc.mysql.dt;singleton:=true
-Bundle-Version: 0.5.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: org.eclipse.epsilon.emc.mysql.dt.Activator
 Require-Bundle: org.eclipse.epsilon.common.dt,
  org.eclipse.epsilon.emc.mysql
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.epsilon.emc.mysql.dt
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: Epsilon Framework
