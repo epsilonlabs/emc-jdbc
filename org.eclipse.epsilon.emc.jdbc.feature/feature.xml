@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.epsilon.emf.jdbc.feature"
+      id="org.eclipse.epsilon.emc.jdbc.feature"
       label="Epsilon EMC JDBC Driver Feature"
       version="1.5.0.qualifier"
       provider-name="Epsilon Framework">
 
-   <description url="http://www.example.com/description">
-      Epsilon EMC JDBC Dirver. The JDBC Driver plugin contains a base implementaiton that needs to be extended to provide specific implementations for different DB types. For example, the JDBC MySQL plugin provides support for MySQL databases.
+   <description>
+      Epsilon EMC JDBC Dirver. The JDBC Driver plugin contains a base
+implementaiton that needs to be extended to provide specific
+implementations for different DB types. For example, the JDBC
+MySQL plugin provides support for MySQL databases.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      
+   <copyright>
+      Copyright (c) 2008 The University of York.
+All rights reserved. 
+Contributors: Dimitrios Kolovos and others
    </copyright>
 
-   <license url="https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt">
+   <license url="https://www.eclipse.org/legal/epl-2.0/">
       Eclipse Public License - v 2.0
 
     THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
@@ -292,6 +297,11 @@ version(s), and exceptions or additional permissions here}.&quot;
 
   You may add additional accurate notices of copyright ownership.
    </license>
+
+   <url>
+      <discovery label="Epsilon Update Site (Stable)" url="http://download.eclipse.org/epsilon/updates/"/>
+      <discovery label="Epsilon Update Site (Interim)" url="http://download.eclipse.org/epsilon/interim/"/>
+   </url>
 
    <plugin
          id="org.eclipse.epsilon.emc.jdbc"
