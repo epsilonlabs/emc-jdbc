@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.epsilon.emc.mysql</name>
+	<name>org.eclipse.epsilon.emc.jdbc.mysql</name>
 	<comment></comment>
 	<projects>
 	</projects>
