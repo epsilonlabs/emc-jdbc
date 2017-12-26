@@ -5,8 +5,8 @@
 
   <name>Parent</name> 
   
-  <groupId>org.eclipse.epsilonlabs</groupId>
-  <artifactId>org.eclipse.epsilonlabs.jdbc</artifactId>
+  <groupId>org.eclipse.epsilon.labs</groupId>
+  <artifactId>org.eclipse.epsilon.labs.jdbc</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
