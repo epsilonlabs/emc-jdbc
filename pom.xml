@@ -34,6 +34,7 @@
     <module>org.eclipse.epsilon.emc.jdbc.mysql.dt</module>
     <module>org.eclipse.epsilon.emc.jdbc.mysql.dependencies</module>
     <module>org.eclipse.epsilon.emc.jdbc.mysql.feature</module>
+    <module>org.eclipse.epsilon.emc.jdbc.mysql.dt.feature</module>
   </modules>
 
   <build>
