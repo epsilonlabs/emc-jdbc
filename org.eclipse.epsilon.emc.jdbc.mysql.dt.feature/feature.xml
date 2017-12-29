@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.epsilon.emc.jdbc.mysql.dt.feature"
       label="Epsilon EMC JDBC MySQL dev tools Feature"
-      version="1.1.0.qualifier"
+      version="1.1.1.qualifier"
       provider-name="Epsilon Framework">
 
    <description>
