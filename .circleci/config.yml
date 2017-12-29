@@ -37,5 +37,5 @@ jobs:
 
       # Store the jars as artifacts to use in update site
       - store_artifacts:
-          path: /repo/org.eclipse.epsilon.emc.jdbc/target/org.eclipse.epsilon.emc.jdbc-1.1.0-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc/target/org.eclipse.epsilon.emc.jdbc-1.1.0-SNAPSHOT.jar
           destination: org.eclipse.epsilon.emc.jdbc-1.1.0-SNAPSHOT.jar
