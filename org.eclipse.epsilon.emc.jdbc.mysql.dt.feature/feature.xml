@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.epsilon.emc.jdbc.feature"
-      label="Epsilon EMC JDBC Driver Feature"
-      version="1.5.0.qualifier"
+      id="org.eclipse.epsilon.emc.jdbc.mysql.dt.feature"
+      label="Epsilon EMC JDBC MySQL dev tools Feature"
+      version="1.1.0.qualifier"
       provider-name="Epsilon Framework">
 
    <description>
-      Epsilon EMC JDBC Dirver. The JDBC Driver plugin contains a base
-implementaiton that needs to be extended to provide specific
-implementations for different DB types. For example, the JDBC
-MySQL plugin provides support for MySQL databases.
+      Epsilon EMC JDBC Dirver for MySQL databases developer tools
    </description>
 
    <copyright>
@@ -297,20 +294,19 @@ version(s), and exceptions or additional permissions here}.&quot;
 
   You may add additional accurate notices of copyright ownership.
    </license>
-
-   <url>
+   
+  <url>
       <discovery label="Epsilon Update Site (Stable)" url="http://download.eclipse.org/epsilon/updates/"/>
       <discovery label="Epsilon Update Site (Interim)" url="http://download.eclipse.org/epsilon/interim/"/>
    </url>
 
    <requires>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.epsilon.eol.engine"/>
+      <import plugin="org.eclipse.epsilon.common.dt"/>
+      <import plugin="org.eclipse.epsilon.emc.jdbc.mysql"/>
    </requires>
 
    <plugin
-         id="org.eclipse.epsilon.emc.jdbc"
+         id="org.eclipse.epsilon.emc.jdbc.mysql.dt"
          download-size="0"
          install-size="0"
          version="0.0.0"
