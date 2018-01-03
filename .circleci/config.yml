@@ -65,8 +65,8 @@ jobs:
           destination: features/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.3-SNAPSHOT.jar
 
       - store_artifacts:
-          path: ~/repo/jdbc.site
-          destination: jdbc.site
+          path: ~/repo/site.xml
+          destination: site.xml
 
       # Trigger updatesite build    
       # - run: curl -X POST https://circleci.com/api/v1.1/project/bitbucket/epsilonlabs/epsilonlabs-updatesite?circle-token=$TRIGGER_BUILD
