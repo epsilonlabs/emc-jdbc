@@ -42,7 +42,7 @@ jobs:
 
       - store_artifacts:
           path: ~/repo/org.eclipse.epsilon.emc.jdbc.feature/target/org.eclipse.epsilon.emc.jdbc.feature-1.1.2-SNAPSHOT.jar
-          destination: featrues/org.eclipse.epsilon.emc.jdbc.feature-1.1.2-SNAPSHOT.jar
+          destination: features/org.eclipse.epsilon.emc.jdbc.feature-1.1.2-SNAPSHOT.jar
       
       - store_artifacts:
           path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql/target/org.eclipse.epsilon.emc.jdbc.mysql-1.1.2-SNAPSHOT.jar
@@ -58,11 +58,11 @@ jobs:
       
       - store_artifacts:
           path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature/target/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.2-SNAPSHOT.jar
-          destination: featrues/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.2-SNAPSHOT.jar
+          destination: features/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.2-SNAPSHOT.jar
       
       - store_artifacts:
           path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.feature/target/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.2-SNAPSHOT.jar
-          destination: featrues/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.2-SNAPSHOT.jar
+          destination: features/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.2-SNAPSHOT.jar
 
       - store_artifacts:
           path: ~/repo/jdbc.site
