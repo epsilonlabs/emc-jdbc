@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.eclipse.epsilon.emc.jdbc.mysql.feature_1.1.1.qualifier.jar" id="org.eclipse.epsilon.emc.jdbc.mysql.feature" version="1.1.1.qualifier">
+      <category name="JDBC"/>
+   </feature>
+   <feature url="features/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature_1.1.1.qualifier.jar" id="org.eclipse.epsilon.emc.jdbc.mysql.dt.feature" version="1.1.1.qualifier">
+      <category name="JDBC"/>
+   </feature>
+   <category-def name="JDBC" label="JDBC">
+      <description>
+         JDBC Drivers
+      </description>
+   </category-def>
+</site>
