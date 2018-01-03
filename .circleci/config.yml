@@ -67,4 +67,9 @@ jobs:
       - store_artifacts:
           path: ~/repo/jdbc.site
           destination: jdbc.site
+
+      # Trigger updatesite build    
+      # - run: curl -X POST https://circleci.com/api/v1.1/project/bitbucket/epsilonlabs/epsilonlabs-updatesite?circle-token=$TRIGGER_BUILD
+
+
       
