@@ -37,32 +37,32 @@ jobs:
 
       # Store the jars as artifacts to use in update site
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc/target/org.eclipse.epsilon.emc.jdbc-1.1.2-SNAPSHOT.jar
-          destination: plugins/org.eclipse.epsilon.emc.jdbc-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc/target/org.eclipse.epsilon.emc.jdbc-1.1.3-SNAPSHOT.jar
+          destination: plugins/org.eclipse.epsilon.emc.jdbc-1.1.3-SNAPSHOT.jar
 
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc.feature/target/org.eclipse.epsilon.emc.jdbc.feature-1.1.2-SNAPSHOT.jar
-          destination: features/org.eclipse.epsilon.emc.jdbc.feature-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc.feature/target/org.eclipse.epsilon.emc.jdbc.feature-1.1.3-SNAPSHOT.jar
+          destination: features/org.eclipse.epsilon.emc.jdbc.feature-1.1.3-SNAPSHOT.jar
       
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql/target/org.eclipse.epsilon.emc.jdbc.mysql-1.1.2-SNAPSHOT.jar
-          destination: plugins/org.eclipse.epsilon.emc.jdbc.mysql-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql/target/org.eclipse.epsilon.emc.jdbc.mysql-1.1.3-SNAPSHOT.jar
+          destination: plugins/org.eclipse.epsilon.emc.jdbc.mysql-1.1.3-SNAPSHOT.jar
       
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dependencies/target/org.eclipse.epsilon.emc.jdbc.mysql.dependencies-1.1.2-SNAPSHOT.jar
-          destination: plugins/org.eclipse.epsilon.emc.jdbc.mysql.dependencies-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dependencies/target/org.eclipse.epsilon.emc.jdbc.mysql.dependencies-1.1.3-SNAPSHOT.jar
+          destination: plugins/org.eclipse.epsilon.emc.jdbc.mysql.dependencies-1.1.3-SNAPSHOT.jar
       
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dt/target/org.eclipse.epsilon.emc.jdbc.mysql.dt-1.1.2-SNAPSHOT.jar
-          destination: plugins/org.eclipse.epsilon.emc.jdbc.mysql.dt-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dt/target/org.eclipse.epsilon.emc.jdbc.mysql.dt-1.1.3-SNAPSHOT.jar
+          destination: plugins/org.eclipse.epsilon.emc.jdbc.mysql.dt-1.1.3-SNAPSHOT.jar
       
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature/target/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.2-SNAPSHOT.jar
-          destination: features/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature/target/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.3-SNAPSHOT.jar
+          destination: features/org.eclipse.epsilon.emc.jdbc.mysql.dt.feature-1.1.3-SNAPSHOT.jar
       
       - store_artifacts:
-          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.feature/target/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.2-SNAPSHOT.jar
-          destination: features/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.2-SNAPSHOT.jar
+          path: ~/repo/org.eclipse.epsilon.emc.jdbc.mysql.feature/target/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.3-SNAPSHOT.jar
+          destination: features/org.eclipse.epsilon.emc.jdbc.mysql.feature-1.1.3-SNAPSHOT.jar
 
       - store_artifacts:
           path: ~/repo/jdbc.site
