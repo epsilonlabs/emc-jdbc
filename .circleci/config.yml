@@ -27,8 +27,7 @@ jobs:
 
       - run:
           command: |
-            mvn --fail-never dependency:go-offline || true
-            mvn clean package
+            mvn --fail-never clean dependency:go-offline package
 
       - save_cache:
           paths:
