@@ -222,7 +222,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			res.moveToInsertRow();
 
 			if (parameters.iterator().hasNext()) {
-				EolMap values = (EolMap) parameters.iterator().next();
+				EolMap<?,?> values = (EolMap<?,?>) parameters.iterator().next();
 				for (Object key : values.keySet()) {
 					res.updateObject(key + "", values.get(key));
 				}

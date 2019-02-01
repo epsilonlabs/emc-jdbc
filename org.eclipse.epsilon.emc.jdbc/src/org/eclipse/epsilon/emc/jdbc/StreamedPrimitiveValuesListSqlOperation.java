@@ -39,6 +39,7 @@ public class StreamedPrimitiveValuesListSqlOperation<T> {
 		return operation + "(" + selection + ")";
 	}
 	
+	@SuppressWarnings("unchecked")
 	public T getValue() {
 		ResultSet resultSet = model.getResultSet(getSelection(), condition, parameters, table, false, one);
 		try {

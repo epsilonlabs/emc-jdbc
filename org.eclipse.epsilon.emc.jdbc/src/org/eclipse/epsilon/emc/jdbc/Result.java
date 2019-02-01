@@ -13,10 +13,7 @@ package org.eclipse.epsilon.emc.jdbc;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.TreeMap;
-
 import org.eclipse.epsilon.eol.models.IModelElement;
 
 public class Result implements IModelElement {
@@ -92,6 +89,7 @@ public class Result implements IModelElement {
 		}
 	}
 	
+	@Override
 	public JdbcModel getOwningModel() {
 		return model;
 	}
@@ -108,7 +106,8 @@ public class Result implements IModelElement {
 		return resultSet.getMetaData().getColumnCount();
 	}
 	
-	public String toString(){
+	@Override
+	public String toString() {
 		return getClass()+"#"+hashCode()+" : "+table.getName()+" : "+ row + " : "+cache;		
 	}
 }

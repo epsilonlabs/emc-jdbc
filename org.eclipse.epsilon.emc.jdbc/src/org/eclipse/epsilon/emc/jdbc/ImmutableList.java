@@ -22,7 +22,7 @@ import java.util.ListIterator;
  *
  * @param <T>
  */
-public abstract class ImmutableList<T> implements List<T>{
+public abstract class ImmutableList<T> implements List<T> {
 
 	@Override
 	public boolean add(T arg0) {
