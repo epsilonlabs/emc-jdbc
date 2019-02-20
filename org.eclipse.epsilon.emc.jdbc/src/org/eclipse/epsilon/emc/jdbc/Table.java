@@ -17,8 +17,8 @@ public class Table {
 	
 	protected Database database;
 	protected String name;
-	protected List<ForeignKey> incoming = new ArrayList<ForeignKey>();
-	protected List<ForeignKey> outgoing = new ArrayList<ForeignKey>();
+	protected List<ForeignKey> incoming = new ArrayList<>();
+	protected List<ForeignKey> outgoing = new ArrayList<>();
 	
 	public Table(String name, Database database) {
 		this.name = name;

@@ -19,7 +19,7 @@ import java.util.ListIterator;
  *
  * @param <T>
  */
-public abstract class ImmutableListIterator<T> implements ListIterator<T>{
+public abstract class ImmutableListIterator<T> implements ListIterator<T> {
 
 	@Override
 	public void add(T arg0) {

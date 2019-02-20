@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.epsilon.eol.models.IModelElement;
 
 public class Result implements IModelElement {
@@ -22,7 +23,7 @@ public class Result implements IModelElement {
 	protected int row = -1;
 	protected JdbcModel model;
 	protected Table table;
-	protected HashMap<String, Object> cache = new HashMap<String, Object>();
+	protected Map<String, Object> cache = new HashMap<>();
 	protected boolean streamed = false;
 	
 	public Result(ResultSet rs, JdbcModel model, Table table, boolean streamed) {
@@ -102,7 +103,7 @@ public class Result implements IModelElement {
 		return table;
 	}
 
-	private int getColumnCount() throws SQLException {
+	protected int getColumnCount() throws SQLException {
 		return resultSet.getMetaData().getColumnCount();
 	}
 	

@@ -46,8 +46,8 @@ public class PrimitiveValuesList extends ResultSetBackedList<Object> implements 
 	
 	public List<Object> getValues() {
 		if (values == null) {
-			ListIterator<Object> listIterator = new PrimitiveValuesListIterator(getResultSet(), model, table);
-			values = new ArrayList<Object>();
+			Iterator<Object> listIterator = new PrimitiveValuesListIterator(getResultSet(), model, table);
+			values = new ArrayList<>();
 			while (listIterator.hasNext()) {
 				values.add(listIterator.next());
 			}

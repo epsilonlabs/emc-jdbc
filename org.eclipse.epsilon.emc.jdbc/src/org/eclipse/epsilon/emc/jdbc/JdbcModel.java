@@ -210,7 +210,6 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			throws EolModelElementTypeNotFoundException, EolNotInstantiableModelElementTypeException {
 
 		try {
-
 			// Create a Statement for scrollable ResultSet
 			PreparedStatement sta = prepareStatement("SELECT * FROM " + type + " WHERE 1=2 limit 1",
 					ResultSet.TYPE_SCROLL_INSENSITIVE, getResultSetType(), false);
@@ -232,12 +231,11 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			res.insertRow();
 			res.next();
 			return new Result(res, res.getRow(), this, database.getTable(type), false);
-
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			ex.printStackTrace();
 			return null;
 		}
-
 	}
 
 	@Override
@@ -333,6 +331,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public String ast2sql(Table t, Variable iterator, Expression ast, IEolContext context, ArrayList<Object> variables)
 			throws EolRuntimeException {
 
@@ -424,7 +423,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			List<Expression> parameters = currentoperation.getParameterExpressions();
 			System.err.println(parameters);
 			String ret = "(";
-			for (String s : ((Collection<String>) currentoperation.getTargetExpression().execute(context))) {
+			for (String s : ((Iterable<String>) currentoperation.getTargetExpression().execute(context))) {
 				ret = ret + Utils.wrap(
 						((NameExpression) ((PropertyCallExpression) parameters.get(0)).getPropertyNameExpression())
 								.getName(),
@@ -434,10 +433,9 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			ret = ret.substring(0, ret.length() - 4);
 			ret += ")";
 			return ret;
-		} else
-		// other
-		{
-			Object result = context.getExecutorFactory().executeAST(ast, context);
+		} else {
+			// other
+			Object result = context.getExecutorFactory().execute(ast, context);
 			variables.add(result);
 			return "?";
 		}

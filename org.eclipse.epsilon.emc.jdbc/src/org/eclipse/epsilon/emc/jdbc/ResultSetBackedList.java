@@ -66,11 +66,6 @@ public abstract class ResultSetBackedList<T> extends ImmutableList<T> {
 		this.streamed = streamed;
 	}
 	
-	@Override
-	public boolean isEmpty() {
-		return size() == 0;
-	}
-	
 	public boolean isOne() {
 		return one;
 	}

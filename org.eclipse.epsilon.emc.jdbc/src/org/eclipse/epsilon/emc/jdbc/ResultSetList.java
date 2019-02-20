@@ -132,6 +132,5 @@ public class ResultSetList extends ResultSetBackedList<Result> implements IAbstr
 		}
 		else return null;
 	}
-	
 
 }

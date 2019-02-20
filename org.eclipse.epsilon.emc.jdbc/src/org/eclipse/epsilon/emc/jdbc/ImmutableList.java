@@ -84,16 +84,14 @@ public abstract class ImmutableList<T> implements List<T> {
 		Iterator<T> iterator = iterator();
 		int size = size();
 		Object[] array = new Object[size];
-		int i = 0;
-		while (iterator.hasNext()) {
+		for (int i = 0; iterator.hasNext(); i++) {
 			array[i] = iterator.next();
-			i++;
 		}
 		return array;
 	}
 
 	@Override
-	public <T> T[] toArray(T[] arg0) {
+	public <A> A[] toArray(A[] arg0) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -107,4 +105,8 @@ public abstract class ImmutableList<T> implements List<T> {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return size() == 0;
+	}
 }

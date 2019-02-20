@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public class Database {
 	
-	protected Map<String, Table> tables = new HashMap<String, Table>();
+	protected Map<String, Table> tables = new HashMap<>();
 	
 	public Collection<Table> getTables() {
 		return Collections.unmodifiableCollection(tables.values());

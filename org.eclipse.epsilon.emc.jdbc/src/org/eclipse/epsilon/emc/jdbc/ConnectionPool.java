@@ -38,13 +38,13 @@ public class ConnectionPool {
 	protected Driver driver;
 	
 	/** The pool of streaming connections */
-	protected Queue<Connection> streamingConnections = new ArrayDeque<Connection>();
+	protected Queue<Connection> streamingConnections = new ArrayDeque<>();
 	
 	/** The shated connection */
 	protected Connection sharedConnection = null;
 	
 	/** A Map to keep relations between ResultSets and Connections  */
-	protected WeakHashMap<ResultSet, Connection> resultSetMap = new WeakHashMap<ResultSet, Connection>();
+	protected WeakHashMap<ResultSet, Connection> resultSetMap = new WeakHashMap<>();
 	
 	/**
 	 * Create a new pool with the supplied parameters
