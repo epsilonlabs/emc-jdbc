@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 //import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.eol.dom.CollectionLiteralExpression;
@@ -125,7 +125,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	}
 
 	// Create separate connections for each streamed list
-	protected HashMap<String, PreparedStatement> preparedStatementCache = new HashMap<String, PreparedStatement>();
+	protected Map<String, PreparedStatement> preparedStatementCache = new HashMap<>();
 
 	protected PreparedStatement prepareStatement(String sql, int options, int resultSetType, boolean streamed)
 			throws SQLException {
@@ -273,6 +273,10 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		} catch (Exception ex) {
 			throw new EolModelLoadingException(ex, this);
 		}
+	}
+	
+	public boolean isLoaded() {
+		return database != null;
 	}
 
 	@Override

@@ -55,7 +55,7 @@ public abstract class StreamedResultSetBackedIterator<T> extends ResultSetBacked
 	@Override
 	public T next() {
 		nextConsumed = true;
-		return (T) next;
+		return next;
 	}
 
 }
