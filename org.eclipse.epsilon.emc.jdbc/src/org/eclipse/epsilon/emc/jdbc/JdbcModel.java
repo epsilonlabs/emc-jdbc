@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.eol.dom.CollectionLiteralExpression;
 import org.eclipse.epsilon.eol.dom.Expression;
@@ -39,8 +38,6 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.epsilon.eol.exceptions.models.EolNotInstantiableModelElementTypeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
-import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
-import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
@@ -68,8 +65,6 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	protected String username;
 	protected String password;
 	protected Database database;
-	protected ResultPropertyGetter propertyGetter = new ResultPropertyGetter(this);
-	protected ResultPropertySetter propertySetter = new ResultPropertySetter(this);
 	protected boolean readOnly = true;
 	
 	/** Wheater this model uses streamed ResultSets */
@@ -85,6 +80,11 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 
 	protected String identifierQuoteString = "unknown";
 
+	public JdbcModel() {
+		propertyGetter = new ResultPropertyGetter(this);
+		propertySetter = new ResultPropertySetter(this);
+	}
+	
 	public static void print(ResultSet rs) throws Exception {
 		System.err.println("---");
 		while (rs.next()) {
@@ -374,7 +374,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 				&& ((NameExpression) ((PropertyCallExpression) ast).getTargetExpression()).getName()
 						.equals(iterator.getName())) {
 			PropertyCallExpression pexp = (PropertyCallExpression) ast;
-			return Utils.wrap(pexp.getPropertyNameExpression().getName(), identifierQuoteString);
+			return Utils.wrap(pexp.getNameExpression().getName(), identifierQuoteString);
 		} else if (ast instanceof OperationCallExpression
 				// operation
 				&& ((OperationCallExpression) ast).getTargetExpression() instanceof FeatureCallExpression
@@ -392,7 +392,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			if (operationname.equals(identifierQuoteString + "hasType" + identifierQuoteString))
 				try {
 					String datatype = getTypeMetaData(t, ((PropertyCallExpression) ocexp.getTargetExpression())
-							.getPropertyNameExpression().getName());
+							.getNameExpression().getName());
 					// System.err.println(">"+datatype);
 					String requiredtype = ((StringLiteral) ocexp.getParameterExpressions().get(0)).getValue();
 					// System.err.println(">>"+requiredtype);
@@ -429,7 +429,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 			String ret = "(";
 			for (String s : ((Iterable<String>) currentoperation.getTargetExpression().execute(context))) {
 				ret = ret + Utils.wrap(
-						((NameExpression) ((PropertyCallExpression) parameters.get(0)).getPropertyNameExpression())
+						((NameExpression) ((PropertyCallExpression) parameters.get(0)).getNameExpression())
 								.getName(),
 						identifierQuoteString) + "=? or ";
 				variables.add(s);
@@ -549,16 +549,6 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	@Override
 	public String getElementId(Object instance) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public IPropertyGetter getPropertyGetter() {
-		return propertyGetter;
-	}
-
-	@Override
-	public IPropertySetter getPropertySetter() {
-		return propertySetter;
 	}
 
 	@Override

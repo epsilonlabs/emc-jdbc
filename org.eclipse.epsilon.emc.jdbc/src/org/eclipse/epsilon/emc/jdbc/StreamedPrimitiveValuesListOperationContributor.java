@@ -21,23 +21,23 @@ public class StreamedPrimitiveValuesListOperationContributor extends OperationCo
 	}
 	
 	public Object min() {
-		PrimitiveValuesList l = (PrimitiveValuesList) target;
+		PrimitiveValuesList l = (PrimitiveValuesList) getTarget();
 		System.err.println("Min...");
 		return new StreamedPrimitiveValuesListSqlOperation<>("min", l.getSelection(), l.getCondition(), l.getParameters(), l.getModel(), l.getTable(), l.isOne()).getValue();
 	}
 	
 	public Object max() {
-		PrimitiveValuesList l = (PrimitiveValuesList) target;
+		PrimitiveValuesList l = (PrimitiveValuesList) getTarget();
 		return new StreamedPrimitiveValuesListSqlOperation<>("max", l.getSelection(), l.getCondition(), l.getParameters(), l.getModel(), l.getTable(), l.isOne()).getValue();
 	}
 	
 	public Object sum() {
-		PrimitiveValuesList l = (PrimitiveValuesList) target;
+		PrimitiveValuesList l = (PrimitiveValuesList) getTarget();
 		return new StreamedPrimitiveValuesListSqlOperation<>("sum", l.getSelection(), l.getCondition(), l.getParameters(), l.getModel(), l.getTable(), l.isOne()).getValue();
 	}
 	
 	public Object avg() {
-		PrimitiveValuesList l = (PrimitiveValuesList) target;
+		PrimitiveValuesList l = (PrimitiveValuesList) getTarget();
 		return new StreamedPrimitiveValuesListSqlOperation<>("avg", l.getSelection(), l.getCondition(), l.getParameters(), l.getModel(), l.getTable(), l.isOne()).getValue();
 	}
 	
