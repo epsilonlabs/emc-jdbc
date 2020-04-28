@@ -11,28 +11,28 @@
 package org.eclipse.epsilon.emc.jdbc;
 
 import java.sql.SQLException;
-
+import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.exceptions.EolInternalException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
+import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.introspection.AbstractPropertyGetter;
 
 public class ResultPropertyGetter extends AbstractPropertyGetter {
 	
-	protected JdbcModel model = null;
+	protected JdbcModel model;
 	
 	public ResultPropertyGetter(JdbcModel model) {
 		this.model = model;
 	}
 	
 	@Override
-	public Object invoke(Object object, String property)
-			throws EolRuntimeException {
-		
+	public Object invoke(Object object, String property, ModuleElement ast, IEolContext context) throws EolRuntimeException {
 		try {
 			Object ret = ((Result) object).getValue(property);
 			//System.out.println(ret);
 			return ret;
-		} catch (SQLException e) {
+		}
+		catch (SQLException e) {
 			throw new EolInternalException(e);
 		}
 		/*
