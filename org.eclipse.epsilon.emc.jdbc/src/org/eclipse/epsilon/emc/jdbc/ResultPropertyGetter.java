@@ -11,7 +11,6 @@
 package org.eclipse.epsilon.emc.jdbc;
 
 import java.sql.SQLException;
-import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.exceptions.EolInternalException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
@@ -26,7 +25,7 @@ public class ResultPropertyGetter extends AbstractPropertyGetter {
 	}
 	
 	@Override
-	public Object invoke(Object object, String property, ModuleElement ast, IEolContext context) throws EolRuntimeException {
+	public Object invoke(Object object, String property, IEolContext context) throws EolRuntimeException {
 		try {
 			Object ret = ((Result) object).getValue(property);
 			//System.out.println(ret);

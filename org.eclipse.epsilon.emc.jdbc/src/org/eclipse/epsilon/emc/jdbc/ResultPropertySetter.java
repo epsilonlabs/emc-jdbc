@@ -11,7 +11,6 @@
 package org.eclipse.epsilon.emc.jdbc;
 
 import java.sql.SQLException;
-import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.exceptions.EolIllegalPropertyAssignmentException;
 import org.eclipse.epsilon.eol.exceptions.EolInternalException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -27,9 +26,9 @@ public class ResultPropertySetter extends AbstractPropertySetter {
 	}
 	
 	@Override
-	public void invoke(Object target, String property, Object value, ModuleElement ast, IEolContext context) throws EolRuntimeException {
+	public void invoke(Object target, String property, Object value, IEolContext context) throws EolRuntimeException {
 		if (model.isReadOnly()) {
-			throw new EolIllegalPropertyAssignmentException(property, ast);
+			throw new EolIllegalPropertyAssignmentException(property, context);
 		}
 		try {
 			((Result) target).setValue(property, value);
