@@ -387,7 +387,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		// equal to iterator
 		) {
 			OperationCallExpression ocexp = (OperationCallExpression) ast;
-			String operationname = Utils.wrap(ocexp.getOperationName(), identifierQuoteString);
+			String operationname = Utils.wrap(ocexp.getName(), identifierQuoteString);
 			// currently the hasType function supported fully
 			if (operationname.equals(identifierQuoteString + "hasType" + identifierQuoteString))
 				try {
@@ -419,7 +419,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 						+ " is not null)";
 			else
 				throw new UnsupportedOperationException("cannot translate calls to operation: "
-						+ currentoperation.getOperationName() + " with parameters: " + parameters);
+						+ currentoperation.getName() + " with parameters: " + parameters);
 		} else if (isOperationIncludes(ast, iterator)) {
 			// currently supporting includes with a feature of iterator as
 			// parameter
@@ -467,7 +467,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 	private boolean isOperationIncludes(Expression ast, Variable iterator) {
 		boolean ret = ast instanceof OperationCallExpression;
 		ret = ret && ((OperationCallExpression) ast).getTargetExpression() instanceof CollectionLiteralExpression;
-		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("includes");
+		ret = ret && ((OperationCallExpression) ast).getName().equals("includes");
 		// the operation is specifically 'isPropertySet'
 		ret = ret && ((NameExpression) ((PropertyCallExpression) ((OperationCallExpression) ast)
 				.getParameterExpressions().get(0)).getTargetExpression()).getName().equals(iterator.getName());
@@ -524,7 +524,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		ret = ret
 				&& ((NameExpression) ((OperationCallExpression) ast).getTargetExpression()).getName().equals(getName());
 		// the current sub-expression is made up of: `Model`.x
-		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("avg");
+		ret = ret && "avg".equals(((OperationCallExpression) ast).getName());
 		return ret;
 	}
 
@@ -534,7 +534,7 @@ public abstract class JdbcModel extends Model implements IOperationContributorPr
 		ret = ret
 				&& ((NameExpression) ((OperationCallExpression) ast).getTargetExpression()).getName().equals(getName());
 		// the current sub-expression is made up of: `Model`.x
-		ret = ret && ((OperationCallExpression) ast).getOperationName().equals("isPropertySet");
+		ret = ret && "isPropertySet".equals(((OperationCallExpression) ast).getName());
 		// the operation is specifically 'isPropertySet'
 		ret = ret && ((NameExpression) ((OperationCallExpression) ast).getParameterExpressions().get(0)).getName()
 				.equals(iterator.getName());
